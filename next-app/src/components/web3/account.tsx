@@ -4,15 +4,16 @@ import { useAccount, useBalance, useEnsAvatar, useEnsName } from 'wagmi';
 import { useEffect, useState } from 'react';
 import { mainnet } from 'viem/chains';
 import Image from 'next/image';
+import SendEthModal from './sendEthModal';
 
 export function Account() {
   const [isMounted, setIsMounted] = useState(false);
-  const { address, chain, chainId } = useAccount();
+  const { address, chain, chainId, isConnected } = useAccount();
   const accountBalance = useBalance({
     address,
   });
   const { data: ensName } = useEnsName({
-    address: '0xF54f4815f62ccC360963329789d62d3497A121Ae',
+    address,
     chainId: mainnet.id,
   });
   const { data: ensAvatar } = useEnsAvatar({
@@ -26,9 +27,25 @@ export function Account() {
     }
   }, [isMounted]);
 
+  if (!isMounted) {
+    return (
+      <div>
+        <p className="text-lg">Loading...</p>
+      </div>
+    );
+  }
+
+  if (!isConnected) {
+    return (
+      <div>
+        <p className="text-lg">Not connected</p>
+      </div>
+    );
+  }
+
   return (
     <div className="flex flex-col items-center text-center gap-y-4">
-      {ensAvatar && ensName && isMounted && (
+      {ensAvatar && ensName && (
         <div className="flex items-center gap-x-2">
           <Image
             alt="ENS Avatar"
@@ -40,7 +57,7 @@ export function Account() {
           {ensName && <p className="text-2xl">{ensName}</p>}
         </div>
       )}
-      {address && isMounted && (
+      {address && (
         <>
           <p className="text-lg">{address}</p>
         </>
@@ -51,12 +68,13 @@ export function Account() {
             Balance: {accountBalance.data?.formatted} ETH
           </p>
         )}
-        {chain && chainId && isMounted && (
+        {chain && chainId && (
           <p className="text-lg">
             {chain.name}, chainId: {chainId}
           </p>
         )}
       </div>
+      <SendEthModal />
     </div>
   );
 }
