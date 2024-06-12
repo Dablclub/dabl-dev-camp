@@ -41,8 +41,8 @@ export default function SendEthModal() {
 
   return (
     <Dialog>
-      <DialogTrigger asChild>
-        <Button>Send</Button>
+      <DialogTrigger asChild className="w-full">
+        <Button>Send ETH</Button>
       </DialogTrigger>
       <DialogContent>
         <DialogHeader>
