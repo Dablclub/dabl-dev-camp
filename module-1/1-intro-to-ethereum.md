@@ -24,7 +24,7 @@ The above concept is extremely important to learn! Ethereum = A Computer. That's
 
 ### Ethereum = a computer
 
-![Ethereum is a computer](https://react-to-web3-bootcamp.vercel.app/content/module-1/L1/ethereum-a-computer.png)
+![Ethereum is a computer](https://react-to-web3-bootcamp.vercel.app/content/module-1/L1/1-ethereum-a-computer.png)
 
 That's right. Ethereum can be seen just like any other consumer computer that we know! The thing is, the Ethereum computer isn't actually that fast. In fact, code execution on the Ethereum computer is 5-100x slower than typical compiled code on other machines. It's also quite expensive to use! Adding 5+5 is a lightning flash calculation even on phones... adding 5+5 in Ethereum can cost a few dollars. Basically, the Ethereum computer's basic computation, storage and memory costs mirror those of a 1950's computer.
 
