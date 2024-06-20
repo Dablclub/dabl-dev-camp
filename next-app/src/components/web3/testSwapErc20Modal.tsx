@@ -1,15 +1,6 @@
 import { useEffect, useState } from 'react';
-import {
-  useReadContract,
-  useWriteContract,
-  useWaitForTransactionReceipt,
-  useChainId,
-  useBalance,
-  useSendTransaction,
-} from 'wagmi';
-import { Address, erc20Abi, formatUnits, parseEther, parseUnits } from 'viem';
 import Image from 'next/image';
-import qs from 'qs';
+import Link from 'next/link';
 
 import {
   Dialog,
@@ -28,16 +19,26 @@ import {
 } from '@/components/ui/select';
 import { Button } from '../ui/button';
 import { Input } from '../ui/input';
-import { toast } from 'sonner';
-import { ExternalLinkIcon } from 'lucide-react';
-import Link from 'next/link';
 import {
   POLYGON_EXCHANGE_PROXY,
   POLYGON_TOKENS,
   POLYGON_TOKENS_BY_SYMBOL,
   Token,
 } from '@/lib/constants';
+
 import { PriceResponse, QuoteResponse } from '../../../types';
+import {
+  useBalance,
+  useChainId,
+  useReadContract,
+  useSendTransaction,
+  useWaitForTransactionReceipt,
+  useWriteContract,
+} from 'wagmi';
+import { Address, erc20Abi, formatUnits, parseEther, parseUnits } from 'viem';
+import qs from 'qs';
+import { toast } from 'sonner';
+import { ExternalLinkIcon } from 'lucide-react';
 
 type SendErc20ModalProps = {
   userAddress: `0x${string}` | undefined;
@@ -45,17 +46,14 @@ type SendErc20ModalProps = {
 
 export default function SwapErc20Modal({ userAddress }: SendErc20ModalProps) {
   const [isMounted, setIsMounted] = useState(false);
-  const [finalize, setFinalize] = useState(false);
-  const [price, setPrice] = useState<PriceResponse | undefined>();
-  const [quote, setQuote] = useState<QuoteResponse | undefined>();
   const [sellToken, setSellToken] = useState('wmatic');
   const [sellAmount, setSellAmount] = useState('');
   const [buyToken, setBuyToken] = useState('usdc');
   const [buyAmount, setBuyAmount] = useState('');
-  const [swapDirection, setSwapDirection] = useState('sell');
-  const [error, setError] = useState([]);
-
-  const chainId = useChainId() || 137;
+  const [price, setPrice] = useState<PriceResponse | undefined>();
+  const [tradeDirection, setSwapDirection] = useState('sell');
+  const [quote, setQuote] = useState<QuoteResponse | undefined>();
+  const [finalize, setFinalize] = useState(false);
 
   const handleSellTokenChange = (value: string) => {
     setSellToken(value);
@@ -64,6 +62,8 @@ export default function SwapErc20Modal({ userAddress }: SendErc20ModalProps) {
   function handleBuyTokenChange(value: string) {
     setBuyToken(value);
   }
+
+  const chainId = useChainId() || 137;
 
   const tokensByChain = (chainId: number) => {
     if (chainId === 137) {
@@ -79,14 +79,21 @@ export default function SwapErc20Modal({ userAddress }: SendErc20ModalProps) {
   const buyTokenDecimals = buyTokenObject.decimals;
 
   const parsedSellAmount =
-    sellAmount && swapDirection === 'sell'
+    sellAmount && tradeDirection === 'sell'
       ? parseUnits(sellAmount, sellTokenDecimals).toString()
       : undefined;
 
   const parsedBuyAmount =
-    buyAmount && swapDirection === 'buy'
+    buyAmount && tradeDirection === 'buy'
       ? parseUnits(buyAmount, buyTokenDecimals).toString()
       : undefined;
+
+  const exchangeProxy = (chainId: number): Address => {
+    if (chainId === 137) {
+      return POLYGON_EXCHANGE_PROXY;
+    }
+    return POLYGON_EXCHANGE_PROXY;
+  };
 
   // Hook for fetching balance information for specified token for a specific userAddress
   const { data: userTokenBalance } = useBalance({
@@ -133,7 +140,7 @@ export default function SwapErc20Modal({ userAddress }: SendErc20ModalProps) {
       sellToken: sellTokenObject.address,
       buyToken: buyTokenObject.address,
       sellAmount: parsedSellAmount,
-      // buyAmount: parsedBuyAmount,
+      buyAmount: parsedBuyAmount,
       takerAddress: userAddress,
     };
 
@@ -141,12 +148,6 @@ export default function SwapErc20Modal({ userAddress }: SendErc20ModalProps) {
       const response = await fetch(`/api/price?${qs.stringify(params)}`);
       const data = await response.json();
 
-      if (data?.validationErrors?.length > 0) {
-        // error for sellAmount too low
-        setError(data.validationErrors);
-      } else {
-        setError([]);
-      }
       if (data.buyAmount) {
         setBuyAmount(formatUnits(data.buyAmount, buyTokenObject.decimals));
         setPrice(data);
@@ -216,20 +217,8 @@ export default function SwapErc20Modal({ userAddress }: SendErc20ModalProps) {
                     type="number"
                     name="sell-amount"
                     id="sell-amount"
-                    value={
-                      finalize && quote
-                        ? formatUnits(
-                            BigInt(quote.sellAmount),
-                            sellTokenDecimals
-                          )
-                        : sellAmount
-                    }
                     placeholder="Enter amount..."
                     required
-                    onChange={(event) => {
-                      setSwapDirection('sell');
-                      setSellAmount(event.target.value);
-                    }}
                   />
                 </div>
                 <div className="w-full flex items-center gap-1.5">
@@ -265,31 +254,12 @@ export default function SwapErc20Modal({ userAddress }: SendErc20ModalProps) {
                     type="number"
                     id="buy-amount"
                     name="buy-amount"
-                    value={
-                      finalize && quote
-                        ? formatUnits(BigInt(quote.buyAmount), buyTokenDecimals)
-                        : buyAmount
-                    }
                     placeholder="Enter amount..."
                     disabled
-                    onChange={(event) => {
-                      setSwapDirection('buy');
-                      setSellAmount(event.target.value);
-                    }}
                   />
                 </div>
               </div>
-              {finalize && price ? (
-                <ConfirmSwapButton quote={quote} setFinalize={setFinalize} />
-              ) : (
-                <ApproveOrReviewButton
-                  sellAmount={sellAmount}
-                  sellTokenAddress={POLYGON_TOKENS_BY_SYMBOL[sellToken].address}
-                  userAddress={userAddress}
-                  onClick={getQuote}
-                  disabled={insufficientBalance}
-                />
-              )}
+              <Button>Swap</Button>
             </form>
           </div>
         ) : (
@@ -331,6 +301,7 @@ export default function SwapErc20Modal({ userAddress }: SendErc20ModalProps) {
 
     const {
       data: approvalTxHash,
+      isPending: isPendingWriteContract,
       error: errorWriteContract,
       writeContractAsync,
     } = useWriteContract();

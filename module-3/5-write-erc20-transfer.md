@@ -2,7 +2,7 @@
 
 Previously, we were able to read from the "Ethereum state" to get the BOOTCAMP token balance for the connected address. We just had to configure a Wagmi hook and we were getting the data directly from the smart contract.
 
-But DeFi users don't want to just read that they have 0 balance for your token (or any token, for that matter). Users want to be able to mint and trade assets. However, this needs to change the state of the Ethereum Virtual Machine, and for that we need a new hook from Wagmi: useWriteContract.
+But DeFi users don't want to just read that they have 0 balance for your token (or any token, for that matter). Users want to be able to mint and swap assets. However, this needs to change the state of the Ethereum Virtual Machine, and for that we need a new hook from Wagmi: useWriteContract.
 
 ### Which functions are we using?
 
