@@ -6,7 +6,7 @@ import { mainnet } from 'viem/chains';
 import Image from 'next/image';
 import SendEthModal from './sendEthModal';
 import SendErc20Modal from './sendErc20Modal';
-import SwapErc20Modal from './testSwapErc20Modal';
+import SwapErc20Modal from './swapErc20Modal';
 
 export function Account() {
   const [isMounted, setIsMounted] = useState(false);
