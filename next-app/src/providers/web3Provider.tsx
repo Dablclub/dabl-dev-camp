@@ -22,10 +22,10 @@ const config = createConfig(
       process.env.NEXT_PUBLIC_WALLETCONNECT_PROJECT_ID ?? '',
 
     // Required App Info
-    appName: 'React to Web3 Bootcamp',
+    appName: 'Dabl DevCamp',
 
     // Optional App Info
-    appDescription: 'React to Web3 Bootcamp',
+    appDescription: 'Become a dApp developer in 2 weeks',
     appUrl: 'https://localhost:3000', // your app's url
     appIcon: 'https://localhost:3000/dablclub-512x512.png', // your app's icon, no bigger than 1024x1024px (max. 1MB)
   })

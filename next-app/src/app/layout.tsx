@@ -6,8 +6,8 @@ import { cn } from '@/lib/utils';
 import { Web3Provider } from '@/providers/web3Provider';
 
 export const metadata: Metadata = {
-  title: 'React to Web3 Bootcamp',
-  description: 'React to Web3 Bootcamp',
+  title: 'Dabl DevCamp',
+  description: 'Become a dApp developer in 2 weeks',
 };
 
 const fontSans = FontSans({

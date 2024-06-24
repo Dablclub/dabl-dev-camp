@@ -39,3 +39,9 @@ Finally, a bonus module dedicated to the methodologies and tools essential for t
 - **Peer Support and Collaboration**:
   - Encourage the use of the Discord server for peer support, where learners can collaborate, share resources, and offer feedback to each other.
   - Facilitate group study sessions or peer programming exercises to enhance the learning experience through collaboration.
+
+### Acknowledgements and contributions
+
+This is an evolving project, with contributions from different members from Dabl Club, past and present.
+
+We will update this section to credit contributors.

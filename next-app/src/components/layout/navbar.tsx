@@ -15,7 +15,7 @@ export type MenuItemType = {
 };
 
 const MENU_ITEMS: MenuItemType[] = [
-  { displayText: 'bootcamp', href: '/', isMobileOnly: false },
+  { displayText: 'devcamp', href: '/', isMobileOnly: false },
   { displayText: 'repo', href: '/github', isMobileOnly: false },
   { displayText: 'docs', href: '/docs', isMobileOnly: false },
   { displayText: 'faq', href: '/faq', isMobileOnly: false },
@@ -23,10 +23,6 @@ const MENU_ITEMS: MenuItemType[] = [
 
 export default function Navbar() {
   const pathname = usePathname();
-
-  function connectWallet() {
-    toast.warning('Setup Rainbowkit to enable wallet connection');
-  }
 
   return (
     <header className="h-20 w-full bg-background">
