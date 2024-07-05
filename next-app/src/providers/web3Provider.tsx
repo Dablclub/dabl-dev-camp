@@ -3,8 +3,14 @@
 import { ReactNode } from 'react';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { http, createConfig, WagmiProvider } from 'wagmi';
-import { ConnectKitProvider, getDefaultConfig } from 'connectkit';
+import {
+  ConnectKitProvider,
+  getDefaultConfig,
+  SIWEConfig,
+  SIWEProvider,
+} from 'connectkit';
 import { mainnet, polygon, polygonZkEvmCardona } from 'wagmi/chains';
+import { SiweMessage } from 'siwe';
 
 const config = createConfig(
   getDefaultConfig({
@@ -33,11 +39,62 @@ const config = createConfig(
 
 const queryClient = new QueryClient();
 
+const siweConfig = {
+  getNonce: async () => {
+    const res = await fetch(`/api/siwe`, { method: 'PUT' });
+    if (!res.ok) throw new Error('Failed to fetch SIWE nonce');
+
+    return res.text();
+  },
+  createMessage: ({
+    nonce,
+    address,
+    chainId,
+  }: {
+    nonce: string;
+    address: string;
+    chainId: number;
+  }) => {
+    return new SiweMessage({
+      nonce,
+      chainId,
+      address,
+      version: '1',
+      uri: window.location.origin,
+      domain: window.location.host,
+      statement: 'Hey Dabbler, sign-in to our cool app!!!',
+    }).prepareMessage();
+  },
+  verifyMessage: ({
+    message,
+    signature,
+  }: {
+    message: string;
+    signature: string;
+  }) => {
+    return fetch(`/api/siwe`, {
+      method: 'POST',
+      body: JSON.stringify({ message, signature }),
+      headers: { 'Content-Type': 'application/json' },
+    }).then((res) => res.ok);
+  },
+  getSession: async () => {
+    const res = await fetch(`/api/siwe`);
+    if (!res.ok) throw new Error('Failed to fetch SIWE session');
+
+    const { address, chainId } = await res.json();
+    return address && chainId ? { address, chainId } : null;
+  },
+  signOut: () => fetch(`/api/siwe`, { method: 'DELETE' }).then((res) => res.ok),
+} satisfies SIWEConfig;
+
 export function Web3Provider({ children }: { children: ReactNode }) {
   return (
     <WagmiProvider config={config}>
       <QueryClientProvider client={queryClient}>
-        <ConnectKitProvider>{children}</ConnectKitProvider>
+        <SIWEProvider {...siweConfig}>
+          <ConnectKitProvider>{children}</ConnectKitProvider>
+        </SIWEProvider>
       </QueryClientProvider>
     </WagmiProvider>
   );

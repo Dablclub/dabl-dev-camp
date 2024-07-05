@@ -1,6 +1,9 @@
+import Session from '@/lib/session';
 import { type NextRequest } from 'next/server';
 
 export async function GET(request: NextRequest) {
+  const session = await Session.fromRequest(request);
+  console.log(session);
   const searchParams = request.nextUrl.searchParams;
 
   try {
